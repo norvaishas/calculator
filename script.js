@@ -1,69 +1,132 @@
 'use strict';
 
-const numbers = document.querySelectorAll('.number');
-const operators = document.querySelectorAll('.operator');
-const decimalBtn = document.getElementById('decimal');
-const clearBtns = document.querySelectorAll('.clear-btn');
-const resultBtn = document.getElementById('result');
-const display = document.getElementById('display');
+const numberButtons = document.querySelectorAll('[data-number]');
+const operationButtons = document.querySelectorAll('[data-operation]');
+const equalsButton = document.querySelector('[data-equals]');
+const deleteButton = document.querySelector('[data-delete]');
+const allClearButton = document.querySelector('[data-all-clear]');
+const previousOperandTextElement = document.querySelector('[data-previous-operand]');
+const currentOperandTextElement = document.querySelector('[data-current-operand]');
+let result = false;
 
-let currentNum = 0;
-let isNewNumber = false;
-let pendingOperation = '';
+class Calculator {
+    constructor(previousOperandTextElement, currentOperandTextElement) {
+        this.previousOperandTextElement = previousOperandTextElement;
+        this.currentOperandTextElement = currentOperandTextElement;
 
-function numPress(e) {
-    let num = e.target.textContent;
-    if (isNewNumber) {
-        display.value = num;
-        isNewNumber = false;
-    } else {
-        (display.value === '0') ? display.value = num : display.value += num;
-        currentNum = display.value;
+        this.clear();
     }
-};
 
-function operation(e) {
-    const localCurrentNum = display.value;
-    const operator = e.target.textContent;
+    clear() {
+        // Почему автор урока создал эти свойства не в конструкторе а методе?
+        this.currentOperand = '';
+        this.previousOperand = '';
+        this.operation = 'undefined';
+    }
 
-    if (isNewNumber) {
-        currentNum = display.value;
-    } else {
-        isNewNumber = true;
-        if (operator === '+') {
-            currentNum += display.value;
+    appendNumber(number) {
+        if (result) {
+            this.currentOperand = '';
+            result = false;
         }
-        else if (operator === '-') {
-            currentNum -= display.value;
+        if (number === '0' && this.currentOperand[0] === '0') {
+            console.log(this.currentOperand, 'ololoooo')
+            return;
+        }
+        if (number === '.' && this.currentOperand.includes('.')) {
+            console.log(this.currentOperand)
+            return;
+        }
+        if (number === '.' && this.currentOperand === '') {
+            this.currentOperand = 0 + number.toString();
+        } else {
+            this.currentOperand = this.currentOperand.toString() + number.toString();
         }
     }
-};
 
-function clear(e) {
-    console.log('Клик по кнопке', e.target.textContent)
-};
+    chooseOperation(operation) {
+        // Если первый операнд не выбран, мы не можем нажать операци.
+        if (this.currentOperand === '') return;
+        // Если оба операнда существуют...
+        if (this.previousOperand !== '') {
+            this.compute();
+        }
+        // Сохранит знак операции
+        this.operation = operation;
+        // Присвоить текущий опернанд в предыдущий ( т.е. закончили вводить число)
+        this.previousOperand = this.currentOperand;
+        // Очистить значение текущего операнда
+        this.currentOperand = '';
+    }
 
-function decimal(e) {
-    console.log('Клик по кнопке', e.target.textContent)
-};
+    compute() {
+        let computation;
+        const prev = parseFloat(this.previousOperand);
+        const current = parseFloat(this.currentOperand);
+        if (isNaN(prev) || isNaN(current)) return;
 
-/*function result(e) {
-    console.log('Клик по кнопке', e.target.textContent)
-};*/
+        switch (this.operation) {
+            case '+':
+                computation = prev + current;
+                break;
+            case '-':
+                computation = prev - current;
+                break;
+            case '*':
+                computation = prev * current;
+                break;
+            case '/':
+                computation = prev / current;
+                break;
+            default:
+                return;
+        }
+        this.currentOperand = computation;
+        console.log('Это текущий операнд', this.currentOperand);
+        this.operation = 'undefined';
+        this.previousOperand = '';
+    }
 
+    updateDisplay() {
+        this.currentOperandTextElement.innerText = this.currentOperand;
+        if (this.previousOperand !== '' && this.operation !== 'undefined') {
+            this.previousOperandTextElement.innerText = `${this.previousOperand} ${this.operation}`;
+        } else {
+            this.previousOperandTextElement.innerText = '';
+        }
+    }
 
-numbers.forEach(elem => elem.addEventListener('click', numPress));
+    delete() {
+        this.currentOperand = this.currentOperand.toString().slice(0, -1);
+    }
 
-operators.forEach(elem => elem.addEventListener('click', operation));
+}
 
-clearBtns.forEach(elem => elem.addEventListener('click', clear));
+const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement);
 
-decimalBtn.addEventListener('click', decimal);
+numberButtons.forEach(elem => elem.addEventListener('click', function () {
+    calculator.appendNumber(elem.textContent);
+    calculator.updateDisplay();
+}));
 
-resultBtn.addEventListener('click', result)
+operationButtons.forEach(elem => elem.addEventListener('click', function () {
+    calculator.chooseOperation(elem.textContent);
+    calculator.updateDisplay();
+}))
 
-function numberPress() {
+equalsButton.addEventListener('click', () => {
+    calculator.compute();
+    calculator.updateDisplay();
+    result = true;
 
-};
+})
 
-numberPress();
+allClearButton.addEventListener('click', () => {
+    calculator.clear();
+    calculator.updateDisplay();
+})
+
+deleteButton.addEventListener('click', () => {
+    calculator.delete();
+    calculator.updateDisplay();
+})
