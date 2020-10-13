@@ -1,6 +1,7 @@
 'use strict';
 
 const numberButtons = document.querySelectorAll('[data-number]');
+const decimalButton = document.querySelector('[data-decimal]');
 const operationButtons = document.querySelectorAll('[data-operation]');
 const equalsButton = document.querySelector('[data-equals]');
 const deleteButton = document.querySelector('[data-delete]');
@@ -18,7 +19,6 @@ class Calculator {
     }
 
     clear() {
-        // Почему автор урока создал эти свойства не в конструкторе а методе?
         this.currentOperand = '';
         this.previousOperand = '';
         this.operation = 'undefined';
@@ -29,33 +29,50 @@ class Calculator {
             this.currentOperand = '';
             result = false;
         }
+
+        if (this.currentOperand[0] === '0' && this.currentOperand[1] === '.') {
+            this.currentOperand += number;
+            return;
+        }
+
         if (number === '0' && this.currentOperand[0] === '0') {
-            console.log(this.currentOperand, 'ololoooo')
+            console.log('след 0');
             return;
         }
-        if (number === '.' && this.currentOperand.includes('.')) {
-            console.log(this.currentOperand)
-            return;
+
+        if (this.currentOperand[0] === '0') {
+            this.currentOperand = '';
         }
-        if (number === '.' && this.currentOperand === '') {
-            this.currentOperand = 0 + number.toString();
-        } else {
-            this.currentOperand = this.currentOperand.toString() + number.toString();
+
+        if (this.currentOperand[0] === '0' && this.currentOperand[1] === '.') {
+            console.log('ноль и точка')
+            this.currentOperand = '0.';
         }
+        this.currentOperand = this.currentOperand.toString() + number.toString();
     }
 
+    appendDecimal(dec) {
+        if (result) {
+            this.currentOperand = '';
+            result = false;
+        }
+        if (this.currentOperand.toString().includes(dec)) {
+            return;
+        }
+        if (this.currentOperand[0] === undefined) {
+            this.currentOperand = '0.';
+        } else {
+            this.currentOperand += dec;
+        }
+    };
+
     chooseOperation(operation) {
-        // Если первый операнд не выбран, мы не можем нажать операци.
         if (this.currentOperand === '') return;
-        // Если оба операнда существуют...
         if (this.previousOperand !== '') {
             this.compute();
         }
-        // Сохранит знак операции
         this.operation = operation;
-        // Присвоить текущий опернанд в предыдущий ( т.е. закончили вводить число)
         this.previousOperand = this.currentOperand;
-        // Очистить значение текущего операнда
         this.currentOperand = '';
     }
 
@@ -81,14 +98,15 @@ class Calculator {
             default:
                 return;
         }
-        this.currentOperand = computation;
-        console.log('Это текущий операнд', this.currentOperand);
+        this.currentOperand = computation.toString();
         this.operation = 'undefined';
         this.previousOperand = '';
     }
 
     updateDisplay() {
-        this.currentOperandTextElement.innerText = this.currentOperand;
+        if (this.currentOperand !== 0) {
+            this.currentOperandTextElement.innerText = this.currentOperand;
+        }
         if (this.previousOperand !== '' && this.operation !== 'undefined') {
             this.previousOperandTextElement.innerText = `${this.previousOperand} ${this.operation}`;
         } else {
@@ -114,7 +132,13 @@ operationButtons.forEach(elem => elem.addEventListener('click', function () {
     calculator.updateDisplay();
 }))
 
+decimalButton.addEventListener('click', (e) => {
+    calculator.appendDecimal(e.target.textContent);
+    calculator.updateDisplay();
+})
+
 equalsButton.addEventListener('click', () => {
+    console.log('run compute from =');
     calculator.compute();
     calculator.updateDisplay();
     result = true;
