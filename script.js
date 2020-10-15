@@ -87,28 +87,24 @@ class Calculator {
         let computation;
         const prev = parseFloat(this.previousOperand);
         const current = parseFloat(this.currentOperand);
-        /*let len = 0;
-        if (prev.toString()[1] === '.' || current.toString()[1] === '.') {
-            console.log(prev.toString()[1], 'да')
-            len = prev.toString().length > current.toString().length ? prev.toString().length - 1 :
-              current.toString().length - 1;
+        let len = 1;
+
+        if (prev.toString().includes('.') || current.toString().includes('.')) {
+            len = prev.toString().length > current.toString().length ? prev.toString().length - 2 :
+              current.toString().length - 2;
         }
-        console.log(len);*/
 
         if (this.operation !== '√' && ( isNaN(prev) || isNaN(current)) ) return;
 
         switch (this.operation) {
             case '+':
-                computation = prev + current;
-                // computation = this.round((prev + current), len);
+                computation = this.round((prev + current), len);
                 break;
             case '-':
-                computation = prev - current;
-                // computation = this.round((prev - current), len);
+                computation = this.round((prev - current), len);
                 break;
             case '*':
-                computation = prev * current;
-                // computation = this.round((prev * current), len);
+                computation = this.round((prev * current), len);
                 break;
             case '/':
                 computation = prev / current;
