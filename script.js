@@ -36,7 +36,6 @@ class Calculator {
         }
 
         if (number === '0' && this.currentOperand[0] === '0') {
-            console.log('след 0');
             return;
         }
 
@@ -45,7 +44,6 @@ class Calculator {
         }
 
         if (this.currentOperand[0] === '0' && this.currentOperand[1] === '.') {
-            console.log('ноль и точка')
             this.currentOperand = '0.';
         }
         this.currentOperand = this.currentOperand.toString() + number.toString();
@@ -67,33 +65,59 @@ class Calculator {
     };
 
     chooseOperation(operation) {
-        if (this.currentOperand === '') return;
-        if (this.previousOperand !== '') {
-            this.compute();
+        if (operation === '-' && this.currentOperand === '') {
+            this.currentOperand = operation + this.currentOperand;
+            return;
         }
-        this.operation = operation;
-        this.previousOperand = this.currentOperand;
-        this.currentOperand = '';
+        if (operation === '√') {
+            this.operation = operation;
+            this.compute();
+        } else {
+            if (this.currentOperand === '') return;
+            if (this.previousOperand !== '') {
+                this.compute();
+            }
+            this.operation = operation;
+            this.previousOperand = this.currentOperand;
+            this.currentOperand = '';
+        }
     }
 
     compute() {
         let computation;
         const prev = parseFloat(this.previousOperand);
         const current = parseFloat(this.currentOperand);
-        if (isNaN(prev) || isNaN(current)) return;
+        /*let len = 0;
+        if (prev.toString()[1] === '.' || current.toString()[1] === '.') {
+            console.log(prev.toString()[1], 'да')
+            len = prev.toString().length > current.toString().length ? prev.toString().length - 1 :
+              current.toString().length - 1;
+        }
+        console.log(len);*/
+
+        if (this.operation !== '√' && ( isNaN(prev) || isNaN(current)) ) return;
 
         switch (this.operation) {
             case '+':
                 computation = prev + current;
+                // computation = this.round((prev + current), len);
                 break;
             case '-':
                 computation = prev - current;
+                // computation = this.round((prev - current), len);
                 break;
             case '*':
                 computation = prev * current;
+                // computation = this.round((prev * current), len);
                 break;
             case '/':
                 computation = prev / current;
+                break;
+            case '√':
+                computation = Math.sqrt(current);
+                break;
+            case '^':
+                computation = Math.pow(prev, current);
                 break;
             default:
                 return;
@@ -104,6 +128,10 @@ class Calculator {
     }
 
     updateDisplay() {
+        if (calculator.currentOperand === 'NaN') {
+            this.currentOperandTextElement.innerText = 'Ошибка';
+            return;
+        }
         if (this.currentOperand !== 0) {
             this.currentOperandTextElement.innerText = this.currentOperand;
         }
@@ -116,6 +144,10 @@ class Calculator {
 
     delete() {
         this.currentOperand = this.currentOperand.toString().slice(0, -1);
+    }
+
+    round(value, decimals) {
+        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
     }
 
 }
@@ -138,7 +170,6 @@ decimalButton.addEventListener('click', (e) => {
 })
 
 equalsButton.addEventListener('click', () => {
-    console.log('run compute from =');
     calculator.compute();
     calculator.updateDisplay();
     result = true;

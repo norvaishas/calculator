@@ -22,20 +22,32 @@ body {
   grid-template-rows: minmax(120px, auto) repeat(5, 100px);
 }
 
-.calculator-grid > button {
+button {
   cursor: pointer;
   font-size: 2rem;
   border: 1px solid white;
   outline: none;
-  background-color: rgba(255, 255, 255, .75);
+  background-color: rgba(207, 201, 201, 0.75);
 }
 
-.calculator-grid > button:hover {
+button:hover {
   background-color: rgba(255, 255, 255, .9);
 }
 
-.span-two {
-  grid-column: span 2;
+.number {
+  background-color: rgba(102, 101, 134, 0.75);
+}
+
+.number:hover {
+  background-color: rgba(82, 81, 112, 0.9);
+}
+
+.equal {
+  background-color: rgb(89, 119, 84);
+}
+
+.equal:hover {
+  background-color: rgb(100, 164, 94);
 }
 
 .output {
@@ -46,7 +58,6 @@ body {
   align-items: flex-end;
   flex-direction: column;
   padding: 10px;
-  /*Перенос текста на новую строку*/
   word-wrap: break-word;
   word-break: break-all;
 }
