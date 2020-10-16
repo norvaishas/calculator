@@ -25,8 +25,10 @@ class Calculator {
     }
 
     appendNumber(number) {
-        if (result) {
+        if (result && this.currentOperand !=='-') {
             this.currentOperand = '';
+            result = false;
+        } else {
             result = false;
         }
 
@@ -69,6 +71,9 @@ class Calculator {
             this.currentOperand = operation + this.currentOperand;
             return;
         }
+        if (operation === '-' && this.currentOperand[0] === '-') {
+            return;
+        }
         if (operation === '√') {
             this.operation = operation;
             this.compute();
@@ -106,7 +111,7 @@ class Calculator {
             case '*':
                 computation = this.round((prev * current), len);
                 break;
-            case '/':
+            case '÷':
                 computation = prev / current;
                 break;
             case '√':
@@ -156,7 +161,7 @@ numberButtons.forEach(elem => elem.addEventListener('click', function () {
 }));
 
 operationButtons.forEach(elem => elem.addEventListener('click', function () {
-    calculator.chooseOperation(elem.textContent);
+   calculator.chooseOperation(elem.textContent);
     calculator.updateDisplay();
 }))
 
